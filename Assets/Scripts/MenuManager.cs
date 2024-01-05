@@ -7,14 +7,44 @@ using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
+    public static MenuManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     [SerializeField] private TextMeshProUGUI bestScoreText;
     [SerializeField] private TMP_InputField playerNameInput;
     [SerializeField] private Button startButton;
     [SerializeField] private Button quitButton;
 
+
+    private void Start()
+    {
+        string m_playerName = PlayerPrefs.GetString("PlayerName");
+        int bestScore = PlayerPrefs.GetInt("HighScore", 0);
+
+        bestScoreText.text = "Best Score: " + m_playerName + ": " + bestScore;
+    }
+
+    public void ResetPlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+    }
+
     public void InputPlayerName()
     {
-        bestScoreText.text = playerNameInput.text;
+        PlayerPrefs.SetString("inputPlayerName", playerNameInput.text);
+        PlayerPrefs.Save();
     }
 
 

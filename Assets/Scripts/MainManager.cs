@@ -11,18 +11,25 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text playerNameAndBestScoreText;
     public GameObject GameOverText;
 
     private bool m_Started = false;
     private int m_Points;
 
     private bool m_GameOver = false;
-
+    string highScorePlayerName;
+    string currentPlayerName;
+    int bestScore;
 
     // Start is called before the first frame update
     void Start()
     {
-        m_Points = PlayerPrefs.GetInt("HighScore", 0);
+        highScorePlayerName = PlayerPrefs.GetString("PlayerName");
+        currentPlayerName = PlayerPrefs.GetString("inputPlayerName");
+        bestScore = PlayerPrefs.GetInt("HighScore", 0);
+        m_Points = 0;  // Reset m_Points to 0 as it will be incremented during the game
+        playerNameAndBestScoreText.text = "Best Score: " + highScorePlayerName + ": " + bestScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
 
@@ -67,17 +74,25 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
-        // Check for a new high score
-        if (m_Points > PlayerPrefs.GetInt("HighScore", 0))
-        {
-            PlayerPrefs.SetInt("HighScore", m_Points);
-            PlayerPrefs.Save();
-        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        
+        if (m_Points > bestScore)
+        {
+            highScorePlayerName = currentPlayerName;
+            bestScore = m_Points;
+            PlayerPrefs.SetInt("HighScore", bestScore);
+            // Save the current player name only if it's a new high score
+            PlayerPrefs.SetString("PlayerName", highScorePlayerName);
+            PlayerPrefs.Save();  // Save PlayerPrefs immediately
+        }
+
+        // Retrieve the playerName who made the high score
+        // Update the UI text with the playerName who made the high score
+        playerNameAndBestScoreText.text = "Best Score: " + highScorePlayerName + ": " + bestScore;
     }
 }
